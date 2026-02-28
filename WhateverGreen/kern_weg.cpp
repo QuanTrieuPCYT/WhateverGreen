@@ -107,11 +107,14 @@ void WEG::init() {
 		resetFramebuffer = FB_NONE;
 	}
 
-	// Black screen fix is needed everywhere, but the form depends on the boot-arg.
-	// Former boot-arg name is ngfxpatch.
+	// Completely override boot-arg `agdpmod`, only making pikera work
+    // the original kext handled this in a way that, makes deviceproperties agdpmod string detection NOT work
+	// so i am doing this cheap hacky workaround for now to keep my boot-args clean
 	char agdp[128];
-	if (PE_parse_boot_argn("agdpmod", agdp, sizeof(agdp)))
-		processGraphicsPolicyStr(agdp);
+	if (PE_parse_boot_argn("agdpmod", agdp, sizeof(agdp))) {
+		DBGLOG("weg", "Ignoring user boot-arg agdpmod=%s, forcing pikera", agdp);
+	}
+    processGraphicsPolicyStr("pikera");
 
 	// Callback setup is only done here for compatibility.
 	lilu.onPatcherLoadForce([](void *user, KernelPatcher &patcher) {
